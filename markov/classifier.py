@@ -31,6 +31,7 @@ class MarkovClassifier:
     def loadFromBuffer(buffer):
         ##  the pos_model and neg_model will probably not be loaded as they should in this implementation
         ##  resolve pointers?
+        ##  Update: actually, it seems like it works. Keep this comment if problem in future though
         return pickle.loads(buffer)
 
     @staticmethod
@@ -41,6 +42,7 @@ class MarkovClassifier:
     def saveToBuffer(self):
         ##  the pos_model and neg_model will probably not be saved as they should in this implementation
         ##  resolve pointers?
+        ##  Update: actually, it seems like it works. Keep this comment if problem in future though
         return pickle.dumps(self)
 
     def saveToFile(self, filepath):
