@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import traceback
 import argparse
 from markov import MarkovClassifier
 
@@ -44,16 +45,18 @@ def main():
 
     markov_classifier = MarkovClassifier(order=args.order, smoothing=args.smoothing)
     try:
-        markov_classifier.trainOnCorpora(pos=args.pos, neg=args.neg)
+        markov_classifier.trainOnCorpora(posfile=args.pos, negfile=args.neg)
     except Exception as e:
         print("Error training Markov Classifier")
         print("%s" % (e))
+        traceback.print_exc()
         return 1
     try:
         markov_classifier.saveToFile(args.file)
     except Exception as e:
         print("Error saving Markov Classifier")
         print("%s" % (e))
+        traceback.print_exc()
         return 1
 
     return 0
