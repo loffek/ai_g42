@@ -4,6 +4,8 @@ import sys
 import traceback
 import argparse
 from markov import MarkovClassifier
+import lib.nltk as nltk
+import lib.numpy as np
 
 ################ CLI App ##################
 def main():

@@ -1,5 +1,5 @@
 from corpus import CorpusReader
-import numpy as np
+import lib.numpy as np
 import re
 
 WHITELIST=1
@@ -42,17 +42,17 @@ class MarkovModel():
             for word in list_of_words:
                 if word not in wordVector:
                     wordVector.append(word)
-                allWords.append(word)          
-        transitionMatrix = np.zeros([len(wordVector),len(wordVector)])
+                allWords.append(word)
+        transitionMatrix = numpy.zeros([len(wordVector),len(wordVector)])
             #print("\"%s\"" % review)
 
         for word in allWords:
-            nextWord= wordVector[wordVector.index(word)+1]
-            transitionMatrix.item(wordVector.index(word),wordVector.index(nextWord) += 1
+            nextWord = wordVector[wordVector.index(word) + 1]
+            transitionMatrix[wordVector.index(word)][wordVector.index(nextWord)] += 1
 
         for i in range(0,len(wordVector)):
-            row = transitionMatrix[i] 
-            transitionMatrix[i] = np.divide(row,row.sum())
+            row = transitionMatrix[i]
+            transitionMatrix[i] = numpy.divide(row,row.sum())
 
         return transitionMatrix,wordVector
 
