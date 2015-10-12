@@ -23,7 +23,7 @@ class MarkovModel():
     def getProb(self, text,transitionMatrix,wordVector):
         filtered_text = self.filtering(text)
         prob = 0
-        for word in filtered_text[1:len(filtered_text)]
+        for word in filtered_text[1:len(filtered_text)]:
                 lastword = wordvector[wordVector.index(word) - 1]
                 prob += transitionMatrix.item((wordVector.index(word),wordVector.index(lastword)))
         return prob
@@ -47,8 +47,9 @@ class MarkovModel():
             #print("\"%s\"" % review)
 
         for word in allWords:
-            nextWord= wordVector[wordVector.index(word)+1]
-            transitionMatrix.item(wordVector.index(word),wordVector.index(nextWord) += 1
+            nextWord = wordVector[wordVector.index(word)+1]
+            #transitionMatrix.item(wordVector.index(word),wordVector.index(nextWord)) += 1
+            transitionMatrix[wordVector.index(word),wordVector.index(nextWord)] += 1
 
         for i in range(0,len(wordVector)):
             row = transitionMatrix[i] 
