@@ -1,0 +1,5 @@
+# This file must be used with "source bin/activate" *from bash*
+# you cannot run it directly
+
+NLTK_DATA="data/nltk_data/"
+export NLTK_DATA

@@ -37,15 +37,22 @@ class MarkovClassifier:
     @staticmethod
     def loadFromFile(filepath):
         with open(filepath, 'rb') as f:
-            return MarkovClassifier.loadFromBuffer(f.read())
+            loadbuf = f.read()
+            print("loading %d bytes from file \"%s\"..." % (len(loadbuf), filepath))
+            mc =  MarkovClassifier.loadFromBuffer(loadbuf)
+            print("done.")
+            return mc
 
     def saveToBuffer(self):
         ##  the pos_model and neg_model will probably not be saved as they should in this implementation
         ##  resolve pointers?
         ##  Update: actually, it seems like it works. Keep this comment if problem in future though
-        return pickle.dumps(self)
+        savebuf = pickle.dumps(self)
+        return savebuf
 
     def saveToFile(self, filepath):
         with open(filepath, 'wb') as f:
-            f.write(self.saveToBuffer())
-
+            savebuf = self.saveToBuffer()
+            print("writing %d bytes to file \"%s\"..." % (len(savebuf), filepath))
+            f.write(savebuf)
+            print("done.")

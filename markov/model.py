@@ -1,62 +1,51 @@
 from corpus import CorpusReader
-import numpy as np
-import re
-
-WHITELIST=1
-BLACKLIST=2
-
-MODES = { \
-WHITELIST : '[^\w\s-]', \
-BLACKLIST : '[.,?!"\']' }
+from scipy.sparse import csr_matrix
+import nltk
 
 
 class MarkovModel():
 
-
-
-    def __init__(self, order, smoothing,matching_mode=WHITELIST):
+    def __init__(self, order, smoothing):
         self.k = order
         self.smoothing = smoothing
         self.set_of_words = set()
-        self.regex = re.compile(MODES[matching_mode], re.U)
+        self.transCountMatrix = None
+        self.ngramHash = {}
+        self.emissionHash = {}
 
-    def getProb(self, text,transitionMatrix,wordVector):
-        filtered_text = self.filtering(text)
-        prob = 0
-        for word in filtered_text[1:len(filtered_text)]:
-                lastword = wordvector[wordVector.index(word) - 1]
-                prob += transitionMatrix.item((wordVector.index(word),wordVector.index(lastword)))
-        return prob
+    def _tokenize(self, text):
+        tokens = nltk.word_tokenize(text)
+        tokens = ['_']*(self.k-1) + tokens + ['_']*(self.k-1) # add start and stop tokens
+        return tokens
 
-    def filtering(self,text):
-        filtered_text = self.regex.sub(" ",text)
-        return filtered_text
+    def _getNGrams(self, tokens, n):
+        return ngrams
+
+    def getProb(self, text):
+        return 0
+
+    def getTransitionProb(self, ngram, token):
+        return 0
 
     def trainOnCorpus(self, reviewfile):
         reader = CorpusReader(reviewfile)
-        wordVector=[]
-        allWords = []
+
+        # count ngrams (prev states) and emissions (words/current state)
+        ngramCounter = 0
+        emissionCounter = 0
+
         for review in reader.reviews():
-            filtered_text = self.filtering(review)
-            list_of_words = filtered_text.split()
-            for word in list_of_words:
-                if word not in wordVector:
-                    wordVector.append(word)
-                allWords.append(word)          
-        transitionMatrix = np.zeros([len(wordVector),len(wordVector)])
-            #print("\"%s\"" % review)
+            tokens = self._tokenize(review)
+            ngrams = nltk.ngrams(tokens, self.k)
 
-        for word in allWords:
-            nextWord = wordVector[wordVector.index(word)+1]
-            #transitionMatrix.item(wordVector.index(word),wordVector.index(nextWord)) += 1
-            transitionMatrix[wordVector.index(word),wordVector.index(nextWord)] += 1
+            for ngram in ngrams:
+                if ngram not in self.ngramHash:
+                    self.ngramHash[ngram] = ngramCounter
+                    ngramCounter += 1
 
-        for i in range(0,len(wordVector)):
-            row = transitionMatrix[i] 
-            transitionMatrix[i] = np.divide(row,row.sum())
+            for token in tokens:
+                if token not in self.emissionHash:
+                    self.emissionHash[token] = emissionCounter
+                    emissionCounter += 1
 
-        return transitionMatrix,wordVector
-
- #       def main(self):
- #           tranMatrix,wordVec = self.trainOnCorpus(text)
- #           return self.getProb(text,tranMatrix,wordVec)
+        for review in reader.reviews()
