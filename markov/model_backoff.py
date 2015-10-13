@@ -1,5 +1,6 @@
 from .model import MarkovModel
 from .model_laplace import MarkovModelLaplace
+import nltk
 
 # See http://courses.washington.edu/ling570/gina_fall11/slides/ling570_class8_smoothing.pdf
 # for details about smoothing
@@ -37,12 +38,14 @@ class MarkovModelBackoff(MarkovModel):
             while (rowmiss > 0 or colmiss > 0) and k >= 0:
                 if k != self.k:
                     if rowmiss:
-                        print("rowmiss! reduce order to %d" % k)
+                        print("rowmiss! reduce order to %d : %s" % (k, prevstates))
                     elif colmiss:
-                        print("colmiss! reduce order to %d (we can go to order 0 right away..." % k)
+                        # we should be able to set k = 0 here ??
+                        print("colmiss! reduce order to %d : %s " % (k, prevstates))
 
                 transProb, rowmiss, colmiss = self.models[k].getTransitionProb(prevstates, word)
                 k -= 1 #reduce k for each iteration
+                prevstates = prevstates[1:] # and reduce the prevstates
 
             #multiply the totalProb
             totalProb *= transProb
