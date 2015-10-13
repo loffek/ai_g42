@@ -28,7 +28,7 @@ to set the environment variable "NLTK\_DATA"
 
 #### To classify a review using trained models:
 
-	$ ./classifier.py -f savefile
+	$ ./classifier.py -f savefiles/somefile
 
 This will wait for input from stdin. Example:
 
