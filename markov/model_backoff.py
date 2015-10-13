@@ -36,12 +36,12 @@ class MarkovModelBackoff(MarkovModel):
 
             rowmiss = 1 # dummy to get inside loop
             while (rowmiss > 0 or colmiss > 0) and k >= 0:
-                if k != self.k:
-                    if rowmiss:
-                        print("rowmiss! reduce order to %d : %s" % (k, prevstates))
-                    elif colmiss:
-                        # we should be able to set k = 0 here ??
-                        print("colmiss! reduce order to %d : %s " % (k, prevstates))
+                #if k != self.k:
+                #    if rowmiss:
+                #        print("rowmiss! reduce order to %d : %s" % (k, prevstates))
+                #    elif colmiss:
+                #        # we should be able to set k = 0 here ??
+                #        print("colmiss! reduce order to %d : %s " % (k, prevstates))
 
                 transProb, rowmiss, colmiss = self.models[k].getTransitionProb(prevstates, word)
                 k -= 1 #reduce k for each iteration
