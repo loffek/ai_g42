@@ -67,8 +67,8 @@ def main():
                 sentiment = markov_classifier.classify(review)
                 results[SENTIMENT.POSITIVE][sentiment] += 1
 
-                #if sentiment != SENTIMENT.POSITIVE:
-                #    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
+                if sentiment != SENTIMENT.POSITIVE:
+                    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
 
                 pos_counter += 1
             except Exception as e:
@@ -76,7 +76,7 @@ def main():
                 print("%s" % (e))
                 traceback.print_exc()
                 return 1
-    print("done. %d reviews classified" % pos_counter)
+    print("done. %d pos reviews classified" % pos_counter)
 
     print("testing negative reviews...")
 
@@ -91,8 +91,8 @@ def main():
                 sentiment = markov_classifier.classify(review)
                 results[SENTIMENT.NEGATIVE][sentiment] += 1
 
-                #if sentiment != SENTIMENT.NEGATIVE:
-                #    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
+                if sentiment != SENTIMENT.NEGATIVE:
+                    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
 
                 neg_counter += 1
             except Exception as e:
@@ -100,28 +100,34 @@ def main():
                 print("%s" % (e))
                 traceback.print_exc()
                 return 1
-    print("done. %d reviews classified" % neg_counter)
+    print("done. %d neg reviews classified" % neg_counter)
 
     total_counter = pos_counter + neg_counter
 
-    print("done. %d reviews classified")
+    print("done. In total %d reviews classified" % total_counter)
     print("---------------------------")
     print("RESULTS");
     print("---------------------------")
     print("")
     print("reviews:    |  POS  |  NEG  |")
     print("classified: +-------+-------+")
-    print("      POS   | %4d  | %4d  |" % (results[SENTIMENT.POSITIVE][SENTIMENT.POSITIVE], results[SENTIMENT.NEGATIVE][SENTIMENT.POSITIVE]))
-    print("        -   | %4d  | %4d  |" % (results[SENTIMENT.POSITIVE][SENTIMENT.NEUTRAL], results[SENTIMENT.NEGATIVE][SENTIMENT.NEUTRAL]))
-    print("      NEG   | %4d  | %4d  |" % (results[SENTIMENT.POSITIVE][SENTIMENT.NEGATIVE], results[SENTIMENT.NEGATIVE][SENTIMENT.NEGATIVE]))
+    print("      POS   | %4d  | %4d  | %4d" % (results[SENTIMENT.POSITIVE][SENTIMENT.POSITIVE],results[SENTIMENT.NEGATIVE][SENTIMENT.POSITIVE],
+                                               results[SENTIMENT.POSITIVE][SENTIMENT.POSITIVE]+results[SENTIMENT.NEGATIVE][SENTIMENT.POSITIVE]))
+    print("        -   | %4d  | %4d  | %4d" % (results[SENTIMENT.POSITIVE][SENTIMENT.NEUTRAL], results[SENTIMENT.NEGATIVE][SENTIMENT.NEUTRAL],
+                                               results[SENTIMENT.POSITIVE][SENTIMENT.NEUTRAL] +results[SENTIMENT.NEGATIVE][SENTIMENT.NEUTRAL]))
+    print("      NEG   | %4d  | %4d  | %4d" % (results[SENTIMENT.POSITIVE][SENTIMENT.NEGATIVE],results[SENTIMENT.NEGATIVE][SENTIMENT.NEGATIVE],
+                                               results[SENTIMENT.POSITIVE][SENTIMENT.NEGATIVE]+results[SENTIMENT.NEGATIVE][SENTIMENT.NEGATIVE]))
     print("            +-------+-------+--------")
     print("      total | %4d  | %4d  | %4d" % (pos_counter, neg_counter, total_counter))
     print("")
     print("reviews:    |  POS | NEG  |")
     print("classified: +------+------+")
-    print("      POS   | %.2f | %.2f |" % (results[SENTIMENT.POSITIVE][SENTIMENT.POSITIVE]/total_counter, results[SENTIMENT.NEGATIVE][SENTIMENT.POSITIVE]/total_counter))
-    print("        -   | %.2f | %.2f |" % (results[SENTIMENT.POSITIVE][SENTIMENT.NEUTRAL]/total_counter, results[SENTIMENT.NEGATIVE][SENTIMENT.NEUTRAL]/total_counter))
-    print("      NEG   | %.2f | %.2f |" % (results[SENTIMENT.POSITIVE][SENTIMENT.NEGATIVE]/total_counter, results[SENTIMENT.NEGATIVE][SENTIMENT.NEGATIVE]/total_counter))
+    print("      POS   | %.2f | %.2f | %.2f" % (results[SENTIMENT.POSITIVE][SENTIMENT.POSITIVE]/total_counter,results[SENTIMENT.NEGATIVE][SENTIMENT.POSITIVE]/total_counter,
+                                                results[SENTIMENT.POSITIVE][SENTIMENT.POSITIVE]/total_counter+results[SENTIMENT.NEGATIVE][SENTIMENT.POSITIVE]/total_counter))
+    print("        -   | %.2f | %.2f | %.2f" % (results[SENTIMENT.POSITIVE][SENTIMENT.NEUTRAL]/total_counter, results[SENTIMENT.NEGATIVE][SENTIMENT.NEUTRAL]/total_counter,
+                                                results[SENTIMENT.POSITIVE][SENTIMENT.NEUTRAL]/total_counter +results[SENTIMENT.NEGATIVE][SENTIMENT.NEUTRAL]/total_counter))
+    print("      NEG   | %.2f | %.2f | %.2f" % (results[SENTIMENT.POSITIVE][SENTIMENT.NEGATIVE]/total_counter,results[SENTIMENT.NEGATIVE][SENTIMENT.NEGATIVE]/total_counter,
+                                                results[SENTIMENT.POSITIVE][SENTIMENT.NEGATIVE]/total_counter+results[SENTIMENT.NEGATIVE][SENTIMENT.NEGATIVE]/total_counter))
     print("            +------+------+--------")
     print("            | %.2f | %.2f | %.2f" % (pos_counter/total_counter, neg_counter/total_counter, total_counter/total_counter))
     print("")
