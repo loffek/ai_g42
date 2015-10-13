@@ -19,6 +19,9 @@ class MarkovClassifier:
         pos_likelihood = self.pos_model.getProb(text)
         neg_likelihood = self.neg_model.getProb(text)
 
+        #print("P(pos) = %.4e" % pos_likelihood)
+        #print("P(neg) = %.4e" % neg_likelihood)
+
         if pos_likelihood > neg_likelihood:
             return SENTIMENT.POSITIVE
         elif neg_likelihood > pos_likelihood:
