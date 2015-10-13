@@ -57,6 +57,12 @@ def main():
 
     print("testing positive reviews...")
     pos_counter = 0
+    misses = {
+        'posRows': 0,
+        'posCols': 0,
+        'negRows': 0,
+        'negCols': 0,
+    }
     with open(args.pos, 'r') as f:
         while(True):
             review = f.readline()
@@ -64,11 +70,15 @@ def main():
                 break;
 
             try:
-                sentiment = markov_classifier.classify(review)
+                sentiment, posRowMisses, posColMisses, negRowMisses, negColMisses = markov_classifier.classify(review)
                 results[SENTIMENT.POSITIVE][sentiment] += 1
+                misses['posRows'] += posRowMisses
+                misses['posCols'] += posColMisses
+                misses['negRows'] += negRowMisses
+                misses['negCols'] += negColMisses
 
-                if sentiment != SENTIMENT.POSITIVE:
-                    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
+                #if sentiment != SENTIMENT.POSITIVE:
+                #    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
 
                 pos_counter += 1
             except Exception as e:
@@ -77,10 +87,17 @@ def main():
                 traceback.print_exc()
                 return 1
     print("done. %d pos reviews classified" % pos_counter)
+    print(misses)
 
     print("testing negative reviews...")
 
     neg_counter = 0
+    misses = {
+        'posRows': 0,
+        'posCols': 0,
+        'negRows': 0,
+        'negCols': 0,
+    }
     with open(args.neg, 'r') as f:
         while(True):
             review = f.readline()
@@ -88,11 +105,15 @@ def main():
                 break;
 
             try:
-                sentiment = markov_classifier.classify(review)
+                sentiment, posRowMisses, posColMisses, negRowMisses, negColMisses = markov_classifier.classify(review)
                 results[SENTIMENT.NEGATIVE][sentiment] += 1
+                misses['posRows'] += posRowMisses
+                misses['posCols'] += posColMisses
+                misses['negRows'] += negRowMisses
+                misses['negCols'] += negColMisses
 
-                if sentiment != SENTIMENT.NEGATIVE:
-                    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
+                #if sentiment != SENTIMENT.NEGATIVE:
+                #    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
 
                 neg_counter += 1
             except Exception as e:
@@ -101,6 +122,7 @@ def main():
                 traceback.print_exc()
                 return 1
     print("done. %d neg reviews classified" % neg_counter)
+    print(misses)
 
     total_counter = pos_counter + neg_counter
 

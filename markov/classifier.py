@@ -16,17 +16,17 @@ class MarkovClassifier:
         return 0
 
     def classify(self, text):
-        pos_likelihood = self.pos_model.getProb(text)
-        neg_likelihood = self.neg_model.getProb(text)
+        pos_likelihood, posTotalRowMisses, posTotalColMisses = self.pos_model.getProb(text)
+        neg_likelihood, negTotalRowMisses, negTotalColMisses = self.neg_model.getProb(text)
 
         #print("P(pos) = %.4e" % pos_likelihood)
         #print("P(neg) = %.4e" % neg_likelihood)
 
         if pos_likelihood > neg_likelihood:
-            return SENTIMENT.POSITIVE
+            return SENTIMENT.POSITIVE, posTotalRowMisses, posTotalColMisses, negTotalRowMisses, negTotalColMisses
         elif neg_likelihood > pos_likelihood:
-            return SENTIMENT.NEGATIVE
-        return SENTIMENT.NEUTRAL
+            return SENTIMENT.NEGATIVE, posTotalRowMisses, posTotalColMisses, negTotalRowMisses, negTotalColMisses
+        return SENTIMENT.NEUTRAL, posTotalRowMisses, posTotalColMisses, negTotalRowMisses, negTotalColMisses
 
 
     # Save and Load from File method:
@@ -44,6 +44,8 @@ class MarkovClassifier:
             print("loading %d bytes from file \"%s\"..." % (len(loadbuf), filepath))
             mc =  MarkovClassifier.loadFromBuffer(loadbuf)
             print("done.")
+            print("Positive model: %d ngrams -> %d words" % (mc.pos_model.transCountMatrix.shape[0], mc.pos_model.transCountMatrix.shape[1]))
+            print("Negative model: %d ngrams -> %d words" % (mc.neg_model.transCountMatrix.shape[0], mc.neg_model.transCountMatrix.shape[1]))
             return mc
 
     def saveToBuffer(self):
