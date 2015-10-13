@@ -1,14 +1,22 @@
 import pickle
 
-from .model import MarkovModel
+from .model_laplace import MarkovModelLaplace
+from .model_backoff import MarkovModelBackoff
+
 from constants import SENTIMENT
 
 class MarkovClassifier:
     def __init__(self, order, smoothing):
         self.k = order
         self.smoothing = smoothing
-        self.pos_model = MarkovModel(self.k, self.smoothing)
-        self.neg_model = MarkovModel(self.k, self.smoothing)
+        if smoothing == 'laplace':
+            self.pos_model = MarkovModelLaplace(self.k)
+            self.neg_model = MarkovModelLaplace(self.k)
+        elif smoothing == 'backoff':
+            self.pos_model = MarkovModelBackoff(self.k)
+            self.neg_model = MarkovModelBackoff(self.k)
+        else:
+            raise Exception('unsupported smoothing')
 
     def trainOnCorpora(self, posfile, negfile):
         self.pos_model.trainOnCorpus(posfile)
@@ -44,8 +52,13 @@ class MarkovClassifier:
             print("loading %d bytes from file \"%s\"..." % (len(loadbuf), filepath))
             mc =  MarkovClassifier.loadFromBuffer(loadbuf)
             print("done.")
-            print("Positive model: %d ngrams -> %d words" % (mc.pos_model.transCountMatrix.shape[0], mc.pos_model.transCountMatrix.shape[1]))
-            print("Negative model: %d ngrams -> %d words" % (mc.neg_model.transCountMatrix.shape[0], mc.neg_model.transCountMatrix.shape[1]))
+            if mc.smoothing == 'laplace':
+                print("Laplace classifier")
+                print("Positive model: %d ngrams -> %d words" % (mc.pos_model.transCountMatrix.shape[0], mc.pos_model.transCountMatrix.shape[1]))
+                print("Negative model: %d ngrams -> %d words" % (mc.neg_model.transCountMatrix.shape[0], mc.neg_model.transCountMatrix.shape[1]))
+            elif mc.smoothing == 'backoff':
+                print("Backoff classifier")
+
             return mc
 
     def saveToBuffer(self):
