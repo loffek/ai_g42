@@ -33,7 +33,7 @@ def main():
             break;
 
         try:
-            sentiment, _, _, _, _ = markov_classifier.classify(review)
+            sentiment = markov_classifier.classify(review, debug=True)
             print(sentiment.name)
         except Exception as e:
             print("Error while classifying")

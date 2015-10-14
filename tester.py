@@ -5,6 +5,7 @@ import traceback
 import argparse
 from markov import MarkovClassifier
 from constants import SENTIMENT
+from corpus import CorpusReader
 
 ################ CLI App ##################
 def main():
@@ -60,32 +61,36 @@ def main():
     misses = {
         'posRows': 0,
         'posCols': 0,
+        'posTrans': 0,
         'negRows': 0,
         'negCols': 0,
+        'negTrans': 0,
     }
-    with open(args.pos, 'r') as f:
-        while(True):
-            review = f.readline()
-            if not review:
-                break;
 
-            try:
-                sentiment, posRowMisses, posColMisses, negRowMisses, negColMisses = markov_classifier.classify(review)
-                results[SENTIMENT.POSITIVE][sentiment] += 1
-                misses['posRows'] += posRowMisses
-                misses['posCols'] += posColMisses
-                misses['negRows'] += negRowMisses
-                misses['negCols'] += negColMisses
+    reader = CorpusReader(args.pos)
+    for review in reader.reviews():
+        try:
+            debugInfo = {}
+            sentiment = markov_classifier.classify(review, debug=False, debugInfo=debugInfo)
+            results[SENTIMENT.POSITIVE][sentiment] += 1
 
-                #if sentiment != SENTIMENT.POSITIVE:
-                #    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
+            misses['posRows'] += debugInfo['pos']['totalRowMisses']
+            misses['posCols'] += debugInfo['pos']['totalColMisses']
+            misses['posTrans'] += debugInfo['pos']['totalTransMisses']
+            misses['negRows'] += debugInfo['neg']['totalRowMisses']
+            misses['negCols'] += debugInfo['neg']['totalColMisses']
+            misses['negTrans'] += debugInfo['neg']['totalTransMisses']
 
-                pos_counter += 1
-            except Exception as e:
-                print("Error while classifying")
-                print("%s" % (e))
-                traceback.print_exc()
-                return 1
+            #if debugInfo['pos']['totalColMisses'] > 0:
+            #    markov_classifier.classify(review, debug=True)
+
+            pos_counter += 1
+            #print(pos_counter)
+        except Exception as e:
+            print("Error while classifying")
+            print("%s" % (e))
+            traceback.print_exc()
+            return 1
     print("done. %d pos reviews classified" % pos_counter)
     print(misses)
 
@@ -95,32 +100,36 @@ def main():
     misses = {
         'posRows': 0,
         'posCols': 0,
+        'posTrans': 0,
         'negRows': 0,
         'negCols': 0,
+        'negTrans': 0,
     }
-    with open(args.neg, 'r') as f:
-        while(True):
-            review = f.readline()
-            if not review:
-                break;
 
-            try:
-                sentiment, posRowMisses, posColMisses, negRowMisses, negColMisses = markov_classifier.classify(review)
-                results[SENTIMENT.NEGATIVE][sentiment] += 1
-                misses['posRows'] += posRowMisses
-                misses['posCols'] += posColMisses
-                misses['negRows'] += negRowMisses
-                misses['negCols'] += negColMisses
+    reader = CorpusReader(args.neg)
+    for review in reader.reviews():
+        try:
+            debugInfo = {}
+            sentiment = markov_classifier.classify(review, debug=False, debugInfo=debugInfo)
+            results[SENTIMENT.NEGATIVE][sentiment] += 1
 
-                #if sentiment != SENTIMENT.NEGATIVE:
-                #    print("WRONG ANSWER (%s) for '%s'" % (sentiment.name, review))
+            misses['posRows'] += debugInfo['pos']['totalRowMisses']
+            misses['posCols'] += debugInfo['pos']['totalColMisses']
+            misses['posTrans'] += debugInfo['pos']['totalTransMisses']
+            misses['negRows'] += debugInfo['neg']['totalRowMisses']
+            misses['negCols'] += debugInfo['neg']['totalColMisses']
+            misses['negTrans'] += debugInfo['neg']['totalTransMisses']
 
-                neg_counter += 1
-            except Exception as e:
-                print("Error while classifying")
-                print("%s" % (e))
-                traceback.print_exc()
-                return 1
+            #if debugInfo['neg']['totalColMisses'] > 0:
+            #    markov_classifier.classify(review, debug=True)
+
+            neg_counter += 1
+            #print(neg_counter)
+        except Exception as e:
+            print("Error while classifying")
+            print("%s" % (e))
+            traceback.print_exc()
+            return 1
     print("done. %d neg reviews classified" % neg_counter)
     print(misses)
 

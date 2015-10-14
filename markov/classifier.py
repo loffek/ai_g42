@@ -23,18 +23,56 @@ class MarkovClassifier:
         self.neg_model.trainOnCorpus(negfile)
         return 0
 
-    def classify(self, text):
-        pos_likelihood, posTotalRowMisses, posTotalColMisses = self.pos_model.getProb(text)
-        neg_likelihood, negTotalRowMisses, negTotalColMisses = self.neg_model.getProb(text)
+    def printDebug(self, debugInfo):
+        print("Total Col Misses: %d" % debugInfo['totalColMisses'])
+        print("Total Row Misses: %d" % debugInfo['totalRowMisses'])
+        print("Total Trans Misses: %d" % debugInfo['totalTransMisses'])
+        for trans in debugInfo['transProbs']:
+            if trans['colmiss']:
+                if trans['rowmiss']:
+                    print("P(\033[31m%60s\033[0m -> \033[31m%20s\033[0m) = %.2e (%d)" % (trans['from'], trans['to'], trans['prob'], trans['count']))
+                else:
+                    print("P(\033[32m%60s\033[0m -> \033[31m%20s\033[0m) = %.2e (%d)" % (trans['from'], trans['to'], trans['prob'], trans['count']))
+            else:
+                if trans['rowmiss']:
+                    print("P(\033[31m%60s\033[0m -> \033[32m%20s\033[0m) = %.2e (%d)" % (trans['from'], trans['to'], trans['prob'], trans['count']))
+                else:
+                    if trans['transmiss']:
+                        print("P(\033[93m%60s\033[0m -> \033[93m%20s\033[0m) = %.2e (%d)" % (trans['from'], trans['to'], trans['prob'], trans['count']))
+                    else:
+                        print("P(\033[32m%60s\033[0m -> \033[32m%20s\033[0m) = %.2e (%d)" % (trans['from'], trans['to'], trans['prob'], trans['count']))
 
-        #print("P(pos) = %.4e" % pos_likelihood)
-        #print("P(neg) = %.4e" % neg_likelihood)
+
+    def classify(self, text, debug=False, debugInfo={}):
+        posDebugInfo = {}
+        pos_likelihood = self.pos_model.getProb(text, posDebugInfo)
+        negDebugInfo = {}
+        neg_likelihood = self.neg_model.getProb(text, negDebugInfo)
+
+        if debug:
+            print()
+            print("---- DEBUG INFO ----")
+            print("review: ")
+            print(text)
+            print("POSITIVE MODEL:")
+            print("P = %.4e" % pos_likelihood)
+            self.printDebug(posDebugInfo)
+
+            print()
+            print("NEGATIVE MODEL:")
+            print("P = %.4e" % neg_likelihood)
+            self.printDebug(negDebugInfo)
+
+        debugInfo.update({
+            'pos': posDebugInfo,
+            'neg': negDebugInfo,
+        })
 
         if pos_likelihood > neg_likelihood:
-            return SENTIMENT.POSITIVE, posTotalRowMisses, posTotalColMisses, negTotalRowMisses, negTotalColMisses
+            return SENTIMENT.POSITIVE
         elif neg_likelihood > pos_likelihood:
-            return SENTIMENT.NEGATIVE, posTotalRowMisses, posTotalColMisses, negTotalRowMisses, negTotalColMisses
-        return SENTIMENT.NEUTRAL, posTotalRowMisses, posTotalColMisses, negTotalRowMisses, negTotalColMisses
+            return SENTIMENT.NEGATIVE
+        return SENTIMENT.NEUTRAL
 
 
     # Save and Load from File method:
