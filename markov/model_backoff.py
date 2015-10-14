@@ -18,10 +18,14 @@ class MarkovModelBackoff(MarkovModel):
         for model in self.models:
             model.trainOnCorpus(file)
 
-    def getProb(self, review):
+    def getProb(self, review, debuginfo={}):
 
-        totalRowMisses = 0 # number of prevstates we didn't know
-        totalColMisses = 0 # number of words we haven't seen before
+        debuginfo.update({
+            'totalRowMisses': 0,    # number of prevstates we didn't know
+            'totalColMisses': 0,    # number of words we haven't seen before
+            'totalTransMisses': 0,  # number of transistions we haven't seen before
+            'transProbs': [],       # the probability of each transition
+        })
 
         tokens = self.models[self.k]._tokenize(review)
         ngrams = list(nltk.ngrams(tokens, self.k)) # this not effective, but works
@@ -33,25 +37,28 @@ class MarkovModelBackoff(MarkovModel):
             prevstates = ngrams[i]
 
             k = self.k # always start at max k
+            alpha = 1 # backoff punishment
 
-            rowmiss = 1 # dummy to get inside loop
-            while (rowmiss > 0 or colmiss > 0) and k >= 0:
-                #if k != self.k:
-                #    if rowmiss:
-                #        print("rowmiss! reduce order to %d : %s" % (k, prevstates))
-                #    elif colmiss:
-                #        # we should be able to set k = 0 here ??
-                #        print("colmiss! reduce order to %d : %s " % (k, prevstates))
+            miss = True # dummy to get inside loop
+            while miss and k >= 0:
 
-                transProb, rowmiss, colmiss = self.models[k].getTransitionProb(prevstates, word)
+                transDebug = {}
+                # alpha = 1, 0.4, 0.16, ...
+                transProb = alpha * self.models[k].getTransitionProb(prevstates, word, transDebug)
+
+                debuginfo['transProbs'].append(transDebug)
+
+                miss = (transDebug['rowmiss'] or transDebug['colmiss'] or transDebug['transmiss'])
                 k -= 1 #reduce k for each iteration
+                alpha = alpha * 0.1 # increase the punishment for each iteration
                 prevstates = prevstates[1:] # and reduce the prevstates
 
             #multiply the totalProb
             totalProb *= transProb
 
             # add the misses (only applies to the base-case 0-order model)
-            totalRowMisses += rowmiss
-            totalColMisses += colmiss
-        return totalProb, totalRowMisses, totalColMisses
+            debuginfo['totalRowMisses'] += transDebug['rowmiss']
+            debuginfo['totalColMisses'] += transDebug['colmiss']
+            debuginfo['totalTransMisses'] += transDebug['transmiss']
+        return totalProb
 

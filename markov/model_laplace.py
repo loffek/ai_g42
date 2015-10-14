@@ -26,12 +26,13 @@ class MarkovModelLaplace(MarkovModel):
 
         return tokens
 
-    def _getNGrams(self, tokens, n):
-        return ngrams
-
-    def getProb(self, review):
-        totalRowMisses = 0 # number of prevstates we didn't know
-        totalColMisses = 0 # number of words we haven't seen before
+    def getProb(self, review, debuginfo={}):
+        debuginfo.update({
+            'totalRowMisses': 0,    # number of prevstates we didn't know
+            'totalColMisses': 0,    # number of words we haven't seen before
+            'totalTransMisses': 0,  # number of transistions we haven't seen before
+            'transProbs': [],       # the probability of each transition
+        })
 
         tokens = self._tokenize(review)
         ngrams = list(nltk.ngrams(tokens, self.k)) # this not effective, but works
@@ -41,18 +42,29 @@ class MarkovModelLaplace(MarkovModel):
         totalProb = 1.0
         for i, word in enumerate(words):
             prevstates = ngrams[i]
-            transProb, rowmiss, colmiss = self.getTransitionProb(prevstates, word)
+            transDebug = {}
+            transProb = self.getTransitionProb(prevstates, word, transDebug)
 
             #multiply the totalProb
             totalProb *= transProb
-            totalRowMisses += rowmiss
-            totalColMisses += colmiss
-        return totalProb, totalRowMisses, totalColMisses
 
-    def getTransitionProb(self, prevstates, word):
+            debuginfo['totalRowMisses'] += transDebug['rowmiss']
+            debuginfo['totalColMisses'] += transDebug['colmiss']
+            debuginfo['totalTransMisses'] += transDebug['transmiss']
+            debuginfo['transProbs'].append(transDebug)
 
-        rowmiss = 0 #we didn't know these prevstates
-        colmiss = 0 #we haven't seen this word before
+        return totalProb
+
+    def getTransitionProb(self, prevstates, word, debuginfo):
+        debuginfo.update({
+            'from'      : prevstates,
+            'to'        : word,
+            'prob'      : 0,
+            'count'     : 0,
+            'rowmiss'   : 0,     #we didn't know these prevstates
+            'colmiss'   : 0,     #we haven't seen this word before
+            'transmiss' : 0,     #we knew the prevstate and the word, but we haven't a transition between them
+        })
 
         numCols = self.transCountMatrix.shape[1]
 
@@ -64,41 +76,32 @@ class MarkovModelLaplace(MarkovModel):
 
         rowSumSmooth = numCols + 1 # add 1 for each word and 1 for the *unknown* word
         if row is None:
-            rowmiss = 1
-            # we don't know the prev state...
-            # (keep default rowSumSmooth)
+            debuginfo['rowmiss'] = 1
             if col is None:
-                colmiss = 1
-                # ...and it is the *unknown* word
+                debuginfo['colmiss'] = 1
                 countSmooth = 1
-                #print("ROW AND COL MISS!")
             else:
-                # ...but we know the word (not that it matters)
                 countSmooth = 1
-                #print("ROW MISS!")
 
         else:
-            # we know the prev states...
             rowSum = self.transCountMatrix.sum(axis=1)[row]
             rowSumSmooth += rowSum # add it to the default smooth value
 
             if col is None:
-                colmiss = 1
-                # ...but not the new word
+                debuginfo['colmiss'] = 1
                 countSmooth = 1
-                #print("COL MISS!")
             else:
                 # everything ok
                 countSmooth = self.transCountMatrix[row, col] + 1
+                if self.transCountMatrix[row, col] == 0:
+                    debuginfo['transmiss'] = 1
 
         Ptrans = countSmooth / rowSumSmooth
 
-        #if self.k == 0:
-        #    print("'%s' %d / %d = %.4f" % (word, countSmooth, rowSumSmooth, Ptrans))
-        #else:
-        #    print("%s -> '%s' %d / %d = %.4f" % (prevstates, word, countSmooth, rowSumSmooth, Ptrans))
+        debuginfo['count'] = countSmooth
+        debuginfo['prob'] = Ptrans
 
-        return Ptrans, rowmiss, colmiss
+        return Ptrans
 
     def trainOnCorpus(self, reviewfile):
         reader = CorpusReader(reviewfile)
@@ -136,7 +139,6 @@ class MarkovModelLaplace(MarkovModel):
         revno = 1
         for review in reader.reviews():
             print("%4d" %(revno))
-            revno += 1
 
             tokens = self._tokenize(review)
             words = tokens[self.k:] # skip the first padding
@@ -146,6 +148,7 @@ class MarkovModelLaplace(MarkovModel):
                     row = 0 # use the only row we got
                     col = self.wordHash[word]
                     self.transCountMatrix[row, col] += 1
+
             else:
                 ngrams = list(nltk.ngrams(tokens, self.k)) # this not effective, but works
 
@@ -154,8 +157,39 @@ class MarkovModelLaplace(MarkovModel):
                     row = self.ngramHash[prevstates]
                     col = self.wordHash[word]
                     self.transCountMatrix[row, col] += 1
+            revno += 1
 
         # convert it to compact csr_matrix format!
         self.transCountMatrix = csr_matrix(self.transCountMatrix)
 
         #print("rows: %d, cols: %d" % (self.transCountMatrix.shape[0], self.transCountMatrix.shape[1]))
+
+    def debugMatrix(self):
+        print("%15s | " % (""), end="")
+        for word, index in self.wordHash.items():
+            print("%15s |" % word, end="")
+        print()
+
+        if self.k == 0:
+            row = 0
+            print("%15s | " % (""), end="")
+            for word, col in self.wordHash.items():
+                count = self.transCountMatrix[row, col]
+                if count == 0:
+                    print("%15s |" % (""), end="")
+                else:
+                    print("%15d |" % (count), end="")
+            print()
+        else:
+            for ngram, row in self.ngramHash.items():
+                print("%15s | " % (ngram,), end="")
+                for word, col in self.wordHash.items():
+                    count = self.transCountMatrix[row, col]
+                    if count == 0:
+                        print("%15s |" % (""), end="")
+                    else:
+                        print("%15d |" % (count), end="")
+                        if count > 0:
+                            count = ""
+                print()
+
