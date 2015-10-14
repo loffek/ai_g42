@@ -19,7 +19,11 @@ class MarkovModelLaplace(MarkovModel):
 
     def _tokenize(self, text):
         tokens = nltk.word_tokenize(text)
-        tokens = [PAD_TOKEN]*(self.k) + tokens + [PAD_TOKEN]*(self.k) # add start and stop tokens
+        if self.k == 0:
+            tokens = tokens + [PAD_TOKEN] # add only the stop token
+        else:
+            tokens = [PAD_TOKEN]*(self.k) + tokens + [PAD_TOKEN]*(self.k) # add start and stop tokens
+
         return tokens
 
     def _getNGrams(self, tokens, n):
