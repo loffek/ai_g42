@@ -14,7 +14,7 @@ def main():
                         help='order of the markov model. default: 0')
 
     parser.add_argument('--smoothing','-s', dest='smoothing',
-                        type=str, nargs='?', required=True, choices=['laplace', 'backoff'],
+                        type=str, nargs='?', required=True, choices=['laplace', 'backoff', 'sgts'],
                         help='smoothing technique')
 
     parser.add_argument('--file', '-f', dest='file',

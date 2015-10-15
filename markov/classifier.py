@@ -2,6 +2,7 @@ import pickle
 
 from .model_laplace import MarkovModelLaplace
 from .model_backoff import MarkovModelBackoff
+from .model_goodturing import MarkovModelGoodTuring
 
 from constants import SENTIMENT
 
@@ -15,6 +16,9 @@ class MarkovClassifier:
         elif smoothing == 'backoff':
             self.pos_model = MarkovModelBackoff(self.k)
             self.neg_model = MarkovModelBackoff(self.k)
+        elif smoothing == 'sgts':
+            self.pos_model = MarkovModelGoodTuring(self.k)
+            self.neg_model = MarkovModelGoodTuring(self.k)
         else:
             raise Exception('unsupported smoothing')
 

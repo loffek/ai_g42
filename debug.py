@@ -66,7 +66,11 @@ print(mc.pos_model.wordHash[word])
 word = "olvidar'"
 print(mc.pos_model.wordHash[word])
 """
-
+"""
 import nltk
 
 tokens = nltk.word_tokenize(text)
+"""
+from markov.classifier import MarkovClassifier
+mc = MarkovClassifier.loadFromFile('savefiles/k0laplaceAB')
+
