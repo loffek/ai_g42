@@ -1,0 +1,101 @@
+$ ./tester.py -n data/corpora/testing_3fold/negC.txt -p data/corpora/testing_3fold/posC.txt -f savefiles/k2laplaceAB
+loading 4115200 bytes from file "savefiles/k2laplaceAB"...
+done.
+Laplace classifier
+Positive model: 45771 ngrams -> 10727 words
+Negative model: 45755 ngrams -> 11052 words
+testing positive reviews...
+done. 1777 pos reviews classified
+{'posTrans': 11497, 'posRows': 18937, 'posCols': 3119, 'negRows': 20909, 'negCols': 3932, 'negTrans': 10600}
+testing negative reviews...
+done. 1777 neg reviews classified
+{'posTrans': 10280, 'posRows': 20727, 'posCols': 4086, 'negRows': 18945, 'negCols': 3220, 'negTrans': 11180}
+done. In total 3554 reviews classified
+---------------------------
+RESULTS
+---------------------------
+
+reviews:    |  POS  |  NEG  |
+classified: +-------+-------+
+      POS   | 1439  |  807  | 2246
+        -   |    0  |    0  |    0
+      NEG   |  338  |  970  | 1308
+            +-------+-------+--------
+      total | 1777  | 1777  | 3554
+
+reviews:    |  POS | NEG  |
+classified: +------+------+
+      POS   | 0.40 | 0.23 | 0.63
+        -   | 0.00 | 0.00 | 0.00
+      NEG   | 0.10 | 0.27 | 0.37
+            +------+------+--------
+            | 0.50 | 0.50 | 1.00
+
+
+$ ./tester.py -n data/corpora/testing_3fold/negB.txt -p data/corpora/testing_3fold/posB.txt -f savefiles/k2laplaceAC
+loading 4148981 bytes from file "savefiles/k2laplaceAC"...
+done.
+Laplace classifier
+Positive model: 45589 ngrams -> 10785 words
+Negative model: 45533 ngrams -> 11004 words
+testing positive reviews...
+done. 1777 pos reviews classified
+{'negRows': 21124, 'posRows': 19101, 'negTrans': 10454, 'posTrans': 11646, 'posCols': 3057, 'negCols': 4037}
+testing negative reviews...
+done. 1777 neg reviews classified
+{'negRows': 19131, 'posRows': 20745, 'negTrans': 11076, 'posTrans': 10252, 'posCols': 4115, 'negCols': 3292}
+done. In total 3554 reviews classified
+---------------------------
+RESULTS
+---------------------------
+
+reviews:    |  POS  |  NEG  |
+classified: +-------+-------+
+      POS   | 1362  |  754  | 2116
+        -   |    0  |    0  |    0
+      NEG   |  415  | 1023  | 1438
+            +-------+-------+--------
+      total | 1777  | 1777  | 3554
+
+reviews:    |  POS | NEG  |
+classified: +------+------+
+      POS   | 0.38 | 0.21 | 0.60
+        -   | 0.00 | 0.00 | 0.00
+      NEG   | 0.12 | 0.29 | 0.40
+            +------+------+--------
+            | 0.50 | 0.50 | 1.00
+
+
+$ ./tester.py -n data/corpora/testing_3fold/negA.txt -p data/corpora/testing_3fold/posA.txt -f savefiles/k2laplaceBC
+loading 4187873 bytes from file "savefiles/k2laplaceBC"...
+done.
+Laplace classifier
+Positive model: 46128 ngrams -> 10864 words
+Negative model: 45869 ngrams -> 11175 words
+testing positive reviews...
+done. 1777 pos reviews classified
+{'negTrans': 10277, 'posRows': 18538, 'negCols': 3798, 'posTrans': 11575, 'posCols': 2932, 'negRows': 20607}
+testing negative reviews...
+done. 1777 neg reviews classified
+{'negTrans': 11054, 'posRows': 20413, 'negCols': 3097, 'posTrans': 10462, 'posCols': 3878, 'negRows': 18852}
+done. In total 3554 reviews classified
+---------------------------
+RESULTS
+---------------------------
+
+reviews:    |  POS  |  NEG  |
+classified: +-------+-------+
+      POS   | 1379  |  805  | 2184
+        -   |    0  |    0  |    0
+      NEG   |  398  |  972  | 1370
+            +-------+-------+--------
+      total | 1777  | 1777  | 3554
+
+reviews:    |  POS | NEG  |
+classified: +------+------+
+      POS   | 0.39 | 0.23 | 0.61
+        -   | 0.00 | 0.00 | 0.00
+      NEG   | 0.11 | 0.27 | 0.39
+            +------+------+--------
+            | 0.50 | 0.50 | 1.00
+
