@@ -88,7 +88,13 @@ def simpleGoodTuringProbs(counts, confidenceLevel=1.96):
     sortedCounts = sorted(countsOfCounts.keys())
     assert(totalCounts == sum([r*n for r,n in countsOfCounts.items()]))
 
-    p0 = countsOfCounts[1] / totalCounts
+    if 1 in countsOfCounts:
+        p0 = countsOfCounts[1] / totalCounts
+
+    else:
+        print("WARNING countsOfCounts[1] is not defined!")
+        p0 = 1 / totalCounts
+
     print('p0 = %f' % p0)
 
     Z = __sgtZ(sortedCounts, countsOfCounts)

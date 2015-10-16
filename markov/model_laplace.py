@@ -13,6 +13,7 @@ class MarkovModelLaplace(MarkovModel):
         self.k = order
         self.set_of_words = set()
         self.transCountMatrix = None
+        self.rowSums = {}
 
         self.ngramHash = {} # maps an ngram to its row index in transCountMatrix
         self.wordHash = {} # maps a word to its col index in transCountMatrix
@@ -61,12 +62,14 @@ class MarkovModelLaplace(MarkovModel):
             'to'        : word,
             'prob'      : 0,
             'count'     : 0,
+            'rowsum'    : 0,
             'rowmiss'   : 0,     #we didn't know these prevstates
             'colmiss'   : 0,     #we haven't seen this word before
             'transmiss' : 0,     #we knew the prevstate and the word, but we haven't a transition between them
         })
 
         numCols = self.transCountMatrix.shape[1]
+        #print("numcols: %d" % numCols)
 
         if self.k == 0:
             row = 0 # just the only row we've got
@@ -84,8 +87,20 @@ class MarkovModelLaplace(MarkovModel):
                 countSmooth = 1
 
         else:
-            rowSum = self.transCountMatrix.sum(axis=1)[row]
+            ######### rowSum = self.transCountMatrix.todense().sum(axis=1)[row]
+            # sum() does not work correctly, need to do this by our selves (the result is cached)
+            rowSums = getattr(self, 'rowSums', None)
+            if not rowSums:
+                self.rowSums = {}
+            rowSum = self.rowSums.get(row, None)
+            if not rowSum:
+                rowSum = self.transCountMatrix[row, :].todense().sum()
+                self.rowSums[row] = rowSum
+
             rowSumSmooth += rowSum # add it to the default smooth value
+
+            #print("rowsum: %d" % rowSum)
+            #print("smooth sum: %d" % rowSumSmooth)
 
             if col is None:
                 debuginfo['colmiss'] = 1
@@ -99,6 +114,7 @@ class MarkovModelLaplace(MarkovModel):
         Ptrans = countSmooth / rowSumSmooth
 
         debuginfo['count'] = countSmooth
+        debuginfo['rowsum'] = rowSumSmooth
         debuginfo['prob'] = Ptrans
 
         return Ptrans

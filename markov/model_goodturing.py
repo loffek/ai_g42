@@ -166,15 +166,18 @@ class MarkovModelGoodTuring(MarkovModel):
         # convert it to compact csr_matrix format!
         self.transCountMatrix = csr_matrix(self.transCountMatrix)
 
-        counts = {}
         for ngram, row in self.ngramHash.items():
+            counts = {}
             for word, col in self.wordHash.items():
-                counts[word] = self.transCountMatrix[row, col]
+                count = self.transCountMatrix[row, col]
+                if count > 0:
+                    counts[word] = count
 
             tic = time.time()
             probs, p0 = sgts.simpleGoodTuringProbs(counts)
-            for word, col in self.wordHash.items():
-                self.transProbMatrix[row, col] = probs[word]
+            for word, prob in probs.items():
+                col = self.wordHash[word]
+                self.transProbMatrix[row, col] = prob
             self.transProbMatrix[row, -1] = p0 # add p0 to the last column!
             toc = time.time()
             print("Elapsed: %.2f s" % (toc-tic))
